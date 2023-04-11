@@ -24,8 +24,9 @@ namespace WATickets.Controllers
         {
             try
             {
+                DateTime time = new DateTime();
 
-                var Dias = db.Dias.ToList();
+                var Dias = db.Dias.Where(a => (filtro.FechaInicial != time ? a.Fecha >= filtro.FechaInicial : true) && (filtro.FechaFinal != time ? a.Fecha <= filtro.FechaFinal : true)).ToList();
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {

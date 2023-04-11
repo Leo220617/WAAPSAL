@@ -25,9 +25,7 @@ namespace WATickets.Models.Cliente
                 .Property(e => e.Descripcion)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<Comidas>()
-                .Property(e => e.Foto)
-                .IsUnicode(false);
+            
 
             modelBuilder.Entity<Dias>()
                 .Property(e => e.Dia)

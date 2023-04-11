@@ -14,8 +14,9 @@ namespace WATickets.Models.Cliente
 
         [StringLength(500)]
         public string Descripcion { get; set; }
+ 
+        public byte[] Foto { get; set; }
 
-        public string Foto { get; set; }
 
         public int? Calorias { get; set; }
     }

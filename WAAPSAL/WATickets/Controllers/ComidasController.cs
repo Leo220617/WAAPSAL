@@ -70,39 +70,65 @@ namespace WATickets.Controllers
         }
 
         [HttpPost]
-        public HttpResponseMessage Post([FromBody] Comidas comida)
+        public HttpResponseMessage Post([FromBody] ComidaViewModel[] comida)
         {
+            var t = db.Database.BeginTransaction();
             try
             {
 
-                 
-                var Comida = db.Comidas.Where(a => a.id == comida.id).FirstOrDefault();
 
-                if (Comida == null)
+                var idDia = comida.FirstOrDefault().idDia;
+
+                var comidasEliminar = db.Comidas.Where(a => a.idDia == idDia).ToList();
+
+                foreach(var item in comidasEliminar)
                 {
-                    Comida = new Comidas();
-
-                    Comida.idDia = comida.idDia;
-                    Comida.Descripcion = comida.Descripcion;
-                    Comida.Foto = comida.Foto;
-                    Comida.Calorias = comida.Calorias;
-                   
-
-                    db.Comidas.Add(Comida);
+                    db.Comidas.Remove(item);
                     db.SaveChanges();
-
                 }
-                else
+
+                foreach(var item in comida)
                 {
-                    throw new Exception("Esta comida YA existe");
+                    var Comida = db.Comidas.Where(a => a.id == item.id).FirstOrDefault();
+
+                    if (Comida == null)
+                    {
+                        Comida = new Comidas();
+
+                        Comida.idDia = item.idDia;
+                        Comida.Descripcion = item.Descripcion;
+                        try
+                        {
+                            byte[] hex = Convert.FromBase64String(item.Foto.Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", ""));
+                            Comida.Foto = hex;
+                        }
+                        catch (Exception)
+                        {
+
+                            
+                        }
+                       
+                        Comida.Calorias = item.Calorias;
+
+
+                        db.Comidas.Add(Comida);
+                        db.SaveChanges();
+
+                    }
+                    else
+                    {
+                        throw new Exception("Esta comida YA existe");
+                    }
                 }
 
+                t.Commit();
 
-                return Request.CreateResponse(HttpStatusCode.OK, Comida);
+
+                return Request.CreateResponse(HttpStatusCode.OK, comida);
             }
             catch (Exception ex)
             {
-
+                t.Rollback();
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
